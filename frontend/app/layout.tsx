@@ -1,12 +1,11 @@
 import './globals.css'
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-
-const inter = Inter({ subsets: ['latin'] })
+import './globals.css'
+import Navigation from './components/Navigation'
 
 export const metadata: Metadata = {
-    title: 'MUC AI',
-    description: 'MUC AI Frontend Application',
+    title: 'MUC AI - 소상공인 광고 콘텐츠 생성',
+    description: '생성형 AI를 활용한 광고 문구 자동 생성 서비스',
 }
 
 export default function RootLayout({
@@ -16,7 +15,10 @@ export default function RootLayout({
 }) {
     return (
         <html lang="ko">
-            <body className={inter.className}>{children}</body>
+            <body>
+                <Navigation />
+                {children}
+            </body>
         </html>
     )
 }

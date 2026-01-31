@@ -1,40 +1,84 @@
 version: '3.8'
 
 services:
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: muc_ai_backend
+  # 1. Database (PostgreSQL)
+  db:
+    image: postgres:15
+    container_name: muc_ai_db
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "8000:8000"
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 2. Backend (FastAPI)
+  backend:
+    build: ./backend
+    container_name: muc_ai_backend
+    restart: always
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_DEFAULT_MODEL: ${OPENAI_DEFAULT_MODEL}
+      HUGGINGFACE_API_KEY: ${HUGGINGFACE_API_KEY}
+      HUGGINGFACE_DEFAULT_MODEL: ${HUGGINGFACE_DEFAULT_MODEL}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GEMINI_DEFAULT_MODEL: ${GEMINI_DEFAULT_MODEL}
+      DEFAULT_AI_PROVIDER: ${DEFAULT_AI_PROVIDER}
+      AI_PROVIDER_FALLBACK_ORDER: ${AI_PROVIDER_FALLBACK_ORDER}
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
     volumes:
       - ./backend:/app
-    environment:
-      - PYTHONUNBUFFERED=1
-    networks:
-      - muc_ai_network
-    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
+  # 3. Frontend (Next.js)
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    build: ./frontend
     container_name: muc_ai_frontend
+    restart: always
+    env_file:
+      - .env
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:${BACKEND_PORT:-8000}
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT:-3000}:3000"
     volumes:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
-    environment:
-      - NODE_ENV=development
     depends_on:
       - backend
-    networks:
-      - muc_ai_network
-    restart: unless-stopped
+    command: npm run dev
 
-networks:
-  muc_ai_network:
-    driver: bridge
+  # 4. Jupyter Notebook (개발/실험용)
+  jupyter:
+    image: jupyter/base-notebook
+    container_name: muc_ai_jupyter
+    restart: unless-stopped
+    ports:
+      - "${JUPYTER_PORT:-8888}:8888"
+    volumes:
+      - ./jupyter:/home/jovyan/work
+    command: start-notebook.sh --NotebookApp.token='' --NotebookApp.password=''
+    profiles:
+      - dev
+
+volumes:
+  postgres_data:
