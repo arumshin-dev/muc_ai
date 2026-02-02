@@ -29,10 +29,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS 설정
+# CORS 설정 (임시로 모든 오리진 허용)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins_list,
+    allow_origins=["*"],  # settings.cors_origins_list -> ["*"] 로 변경
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -77,7 +77,7 @@ async def get_available_providers():
     if settings.HUGGINGFACE_API_KEY:
         providers.append({
             "name": "huggingface",
-            "models": ["meta-llama/Llama-3.1-8B-Instruct", "meta-llama/Llama-3.2-3B-Instruct", "meta-llama/Llama-3.3-70B-Instruct", "google/gemma-2-2b-it"],
+            "models": ["meta-llama/Llama-3.1-8B-Instruct", "meta-llama/Llama-3.2-3B-Instruct", "meta-llama/Llama-3.3-70B-Instruct"],
             "default_model": settings.HUGGINGFACE_DEFAULT_MODEL,
             "free": True
         })

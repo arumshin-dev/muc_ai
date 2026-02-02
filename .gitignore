@@ -1,3 +1,4 @@
+.idx/
 # Python
 __pycache__/
 *.pyc

@@ -4,6 +4,7 @@ Ad Copy Router
 """
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 from database import get_db
 from schemas.ad_copy import AdCopyRequest, AdCopyResponse, AdCopyListResponse
@@ -13,6 +14,12 @@ router = APIRouter(
     prefix="/api/ad-copy",
     tags=["Ad Copy"]
 )
+
+
+@router.options("/generate")
+async def options_generate_ad_copy():
+    """CORS 사전 요청(preflight)을 위한 OPTIONS 핸들러"""
+    return Response(status_code=200)
 
 
 @router.post("/generate", response_model=AdCopyResponse, status_code=201)

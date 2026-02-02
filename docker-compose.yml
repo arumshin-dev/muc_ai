@@ -55,8 +55,6 @@ services:
     restart: always
     env_file:
       - .env
-    environment:
-      NEXT_PUBLIC_API_URL: http://localhost:${BACKEND_PORT:-8000}
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
     volumes:

@@ -12,6 +12,8 @@ interface AdCopyResponse {
     ai_model: string
 }
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+
 export default function AdCopyPage() {
     const [loading, setLoading] = useState(false)
     const [result, setResult] = useState<AdCopyResponse | null>(null)
@@ -21,7 +23,7 @@ export default function AdCopyPage() {
     useEffect(() => {
         const fetchProviders = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/providers')
+                const response = await fetch(`${API_BASE_URL}/api/providers`)
                 if (response.ok) {
                     const data = await response.json()
                     setProviders(data.providers)
@@ -40,7 +42,7 @@ export default function AdCopyPage() {
         setResult(null)
 
         try {
-            const response = await fetch('http://localhost:8000/api/ad-copy/generate', {
+            const response = await fetch(`${API_BASE_URL}/api/ad-copy/generate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

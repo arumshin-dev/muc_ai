@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     
     # 보안
     SECRET_KEY: str = "dev_secret_key_change_in_production"
-    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
+    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001,https://3000-firebase-mucaigit-1769950444332.cluster-xpmcxs2fjnhg6xvn446ubtgpio.cloudworkstations.dev"
     
     @property
     def cors_origins_list(self) -> List[str]:

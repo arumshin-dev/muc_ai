@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { AIProvider } from '../components/AdCopyForm'
 import LoadingSpinner from '../components/LoadingSpinner'
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+
 export default function TextAILandingPage() {
     const [providers, setProviders] = useState<AIProvider[]>([])
     const [loading, setLoading] = useState(true)
@@ -12,7 +14,7 @@ export default function TextAILandingPage() {
     useEffect(() => {
         const fetchProviders = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/providers')
+                const response = await fetch(`${API_BASE_URL}/api/providers`)
                 if (response.ok) {
                     const data = await response.json()
                     setProviders(data.providers)

@@ -17,9 +17,13 @@ PY
 
 from typing import List
 from google.genai import Client
+from google.genai.errors import ClientError
 from services.ai_provider_base import AIProviderBase
-import asyncio
+from fastapi import HTTPException
+
+
 def extract_text_from_gemini(resp):
+    """Gemini 응답에서 텍스트 추출"""
     # candidates 존재 여부 확인
     if not getattr(resp, "candidates", None):
         raise Exception("Gemini 응답에서 candidates를 찾을 수 없습니다.")
@@ -41,16 +45,15 @@ def extract_text_from_gemini(resp):
     if not text:
         raise Exception("Gemini 응답에서 텍스트를 찾을 수 없습니다.")
 
-    # return text
-    return resp.candidates[0].content.parts[0].text
+    return text
+
 
 class GeminiService(AIProviderBase):
     """Google Gemini 광고 문구 생성 서비스"""
 
     def __init__(self, api_key: str, model: str = "gemini-2.5-flash"):
-    # def __init__(self, api_key: str, model: str = "gemini-1.5-pro"):
         super().__init__(api_key, model)
-        self.client = Client(api_key=api_key)
+        self.client = Client(api_key=api_key) if api_key else None
 
     def is_available(self) -> bool:
         """API 키 유효성 확인"""
@@ -68,22 +71,64 @@ class GeminiService(AIProviderBase):
         """Gemini를 사용한 광고 문구 생성"""
 
         if not self.is_available():
-            raise ValueError("Gemini API key is not configured")
+            raise HTTPException(
+                status_code=400,
+                detail="Gemini API 키가 설정되지 않았습니다. 다른 AI 제공자를 선택해주세요."
+            )
 
         prompt = self._build_prompt(
             product_name, category, target_audience, key_features, tone, num_copies
         )
 
-        resp = self.client.chats.create(model=self.model)
-        
+        try:
+            # Chat 세션 생성
+            resp = self.client.chats.create(model=self.model)
+            
+            # 메시지 전송
+            result = resp.send_message(
+                message=[
+                    "당신은 광고 문구 작성 전문가입니다.",
+                    prompt
+                ],
+                config={"max_output_tokens": 500}
+            )
 
-        result = resp.send_message(
-            message=[
-                "당신은 광고 문구 작성 전문가입니다.",
-                prompt
-            ],
-            config={"max_output_tokens": 500}
-        )
+            content = extract_text_from_gemini(result)
+            return self._post_process(content, num_copies)
 
-        content = extract_text_from_gemini(result)
-        return self._post_process(content, num_copies)
+        except ClientError as e:
+            error_message = str(e)
+            
+            # 무료 크레딧 소진 감지
+            if "RESOURCE_EXHAUSTED" in error_message or "quota" in error_message.lower():
+                raise HTTPException(
+                    status_code=429,
+                    detail="Gemini API 무료 사용량을 초과했습니다. 다른 AI 모델(OpenAI 또는 HuggingFace)을 선택해주세요."
+                )
+            
+            # Rate limit 감지
+            if "429" in error_message or "rate limit" in error_message.lower():
+                raise HTTPException(
+                    status_code=429,
+                    detail="Gemini API 요청 한도를 초과했습니다. 잠시 후 다시 시도하거나 다른 모델을 선택해주세요."
+                )
+            
+            # 안전 필터링
+            if "SAFETY" in error_message:
+                raise HTTPException(
+                    status_code=400,
+                    detail="요청이 Gemini 안전 정책에 의해 차단되었습니다. 다른 표현으로 시도해주세요."
+                )
+            
+            # 기타 Gemini API 에러
+            raise HTTPException(
+                status_code=500,
+                detail=f"Gemini API 오류: {error_message}. 다른 AI 모델을 선택해주세요."
+            )
+
+        except Exception as e:
+            # 예상하지 못한 에러
+            raise HTTPException(
+                status_code=500,
+                detail=f"Gemini 처리 중 오류 발생: {str(e)}. 다른 AI 모델을 선택해주세요."
+            )
