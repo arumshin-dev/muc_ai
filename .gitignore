@@ -1,4 +1,5 @@
 .idx/
+
 # Python
 __pycache__/
 *.pyc
@@ -35,12 +36,16 @@ ENV/
 .env
 .env.local
 .env.*.local
+.env.*
+# 하지만 템플릿은 포함
+!.env.example
 
 # Database
 *.db
 *.sqlite
 *.sqlite3
 postgres_data/
+muc_ai.db
 
 # IDE
 .vscode/

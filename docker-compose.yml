@@ -39,6 +39,10 @@ services:
       GEMINI_DEFAULT_MODEL: ${GEMINI_DEFAULT_MODEL}
       DEFAULT_AI_PROVIDER: ${DEFAULT_AI_PROVIDER}
       AI_PROVIDER_FALLBACK_ORDER: ${AI_PROVIDER_FALLBACK_ORDER}
+      FRONTEND_URL: ${FRONTEND_URL}
+      BACKEND_URL: ${BACKEND_URL}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      ENVIRONMENT: ${ENVIRONMENT}
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     volumes:
@@ -55,6 +59,8 @@ services:
     restart: always
     env_file:
       - .env
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}  # API 서버의 URL
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
     volumes:

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { apiClient, ApiError } from '@/lib/api'  // 👈 추가
 import AdCopyForm, { FormData, AIProvider } from '../components/AdCopyForm'
 import AdCopyResult from '../components/AdCopyResult'
 import LoadingSpinner from '../components/LoadingSpinner'
@@ -12,8 +13,6 @@ interface AdCopyResponse {
     ai_model: string
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
-
 export default function AdCopyPage() {
     const [loading, setLoading] = useState(false)
     const [result, setResult] = useState<AdCopyResponse | null>(null)
@@ -23,11 +22,8 @@ export default function AdCopyPage() {
     useEffect(() => {
         const fetchProviders = async () => {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/providers`)
-                if (response.ok) {
-                    const data = await response.json()
+                const data = await apiClient.get<any>('/api/providers')
                     setProviders(data.providers)
-                }
             } catch (err) {
                 console.error('Failed to fetch providers:', err)
             }
@@ -41,58 +37,54 @@ export default function AdCopyPage() {
         setResult(null)
 
         try {
-            console.log('Generating ad copy with data:', formData)
-            
-            const response = await fetch(`${API_BASE_URL}/api/ad-copy/generate`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            })
-
-            if (!response.ok) {
-                const errorData = await response.json()
-                const errorMessage = errorData.detail || '광고 문구 생성에 실패했습니다'
-                
-                // 상태 코드별 처리
-                if (response.status === 429) {
-                    // API 사용량 초과 (Gemini 무료 크레딧 소진 등)
-                    throw new Error(
-                        `⚠️ ${errorMessage}\n\n다른 AI 모델을 선택해주세요.`
-                    )
-                } else if (response.status === 403) {
-                    // 권한 없음 (Gemma 등 제한된 모델)
-                    throw new Error(
-                        `🔒 ${errorMessage}\n\nLlama 계열 모델을 선택해주세요.`
-                    )
-                } else if (response.status === 504) {
-                    // 타임아웃 (모델 로딩 중)
-                    throw new Error(
-                        `⏳ ${errorMessage}\n\n잠시 후 다시 시도해주세요.`
-                    )
-                } else if (response.status === 400) {
-                    // 잘못된 요청
-                    throw new Error(`❌ ${errorMessage}`)
-                } else {
-                    // 기타 서버 오류
-                    throw new Error(
-                        `❌ 서버 오류 (${response.status}): ${errorMessage}\n\n다른 모델을 시도하거나 잠시 후 다시 시도해주세요.`
-                    )
-                }
-            }
-
-            const data: AdCopyResponse = await response.json()
-            console.log('Success:', data)
+            const data = await apiClient.post<AdCopyResponse>(
+                '/api/ad-copy/generate',
+                formData
+            )
             setResult(data)
             
         } catch (err) {
             console.error('Error generating ad copy:', err)
             
-            if (err instanceof Error) {
+            // ApiError인 경우 상태 코드별 처리
+            if (err instanceof ApiError) {
+                const errorMessage = err.detail || err.message
+                
+                switch (err.statusCode) {
+                    case 429:
+                        // API 사용량 초과
+                        setError(
+                            `⚠️ ${errorMessage}\n\n다른 AI 모델을 선택해주세요.`
+                        )
+                        break
+                    
+                    case 403:
+                        // 권한 없음
+                        setError(
+                            `🔒 ${errorMessage}\n\nLlama 계열 모델을 선택해주세요.`
+                        )
+                        break
+                    
+                    case 504:
+                        // 타임아웃
+                        setError(
+                            `⏳ ${errorMessage}\n\n잠시 후 다시 시도해주세요.`
+                        )
+                        break
+                    
+                    case 400:
+                        // 잘못된 요청
+                        setError(`❌ ${errorMessage}`)
+                        break
+                    
+                    default:
+                        // 기타 서버 오류
+                        setError(
+                            `❌ 서버 오류 (${err.statusCode}): ${errorMessage}\n\n다른 모델을 시도하거나 잠시 후 다시 시도해주세요.`
+                        )
+                }
+            } else if (err instanceof Error) {
                 setError(err.message)
-            } else if (typeof err === 'string') {
-                setError(err)
             } else {
                 setError('알 수 없는 오류가 발생했습니다. 네트워크 연결을 확인해주세요.')
             }

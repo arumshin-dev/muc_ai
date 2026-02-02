@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { apiClient, ApiError } from '@/lib/api'
 import AdCopyForm, { FormData, AIProvider } from '../components/AdCopyForm'
 import AdCopyResult from '../components/AdCopyResult'
 import LoadingSpinner from '../components/LoadingSpinner'
@@ -12,8 +13,6 @@ interface AdCopyResponse {
     ai_model: string
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
-
 export default function AdCopyPage() {
     const [loading, setLoading] = useState(false)
     const [result, setResult] = useState<AdCopyResponse | null>(null)
@@ -23,11 +22,8 @@ export default function AdCopyPage() {
     useEffect(() => {
         const fetchProviders = async () => {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/providers`)
-                if (response.ok) {
-                    const data = await response.json()
-                    setProviders(data.providers)
-                }
+                const data = await apiClient.get<any>('/api/providers')
+                setProviders(data.providers)
             } catch (err) {
                 console.error('Failed to fetch providers:', err)
             }
@@ -36,33 +32,47 @@ export default function AdCopyPage() {
     }, [])
 
     const handleSubmit = async (formData: FormData) => {
-        console.log('Generating ad copy with data:', formData);
         setLoading(true)
         setError(null)
         setResult(null)
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/ad-copy/generate`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
+            const data = await apiClient.post<AdCopyResponse>(
+                '/api/ad-copy/generate',
+                {
                     ...formData,
                     strict_mode: true
-                })
-            })
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error('API Error Response:', errorData);
-                throw new Error(errorData.detail || '광고 문구 생성에 실패했습니다');
-            }
-
-            const data: AdCopyResponse = await response.json()
+                }
+            )
             setResult(data)
+            
         } catch (err) {
-            setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다')
+            console.error('Error generating ad copy:', err)
+            
+            if (err instanceof ApiError) {
+                const errorMessage = err.detail || err.message
+                
+                switch (err.statusCode) {
+                    case 429:
+                        setError(`⚠️ ${errorMessage}\n\n다른 AI 모델을 선택해주세요.`)
+                        break
+                    case 403:
+                        setError(`🔒 ${errorMessage}\n\nLlama 계열 모델을 선택해주세요.`)
+                        break
+                    case 504:
+                        setError(`⏳ ${errorMessage}\n\n잠시 후 다시 시도해주세요.`)
+                        break
+                    case 400:
+                        setError(`❌ ${errorMessage}`)
+                        break
+                    default:
+                        setError(`❌ 서버 오류 (${err.statusCode}): ${errorMessage}\n\n다른 모델을 시도하거나 잠시 후 다시 시도해주세요.`)
+                }
+            } else if (err instanceof Error) {
+                setError(err.message)
+            } else {
+                setError('알 수 없는 오류가 발생했습니다. 네트워크 연결을 확인해주세요.')
+            }
         } finally {
             setLoading(false)
         }
@@ -72,7 +82,6 @@ export default function AdCopyPage() {
         <main className="ad-copy-page">
             <div className="page-header">
                 <h1>GPT 광고 문구 생성</h1>
-                {/* <p>AI를 활용하여 매력적인 광고 문구를 자동으로 생성하세요</p> */}
                 <div className="mt-4">
                     <a href="/text-ai" className="text-blue-600 hover:underline">
                         모델별 테스트 페이지로 이동하기 →
@@ -86,8 +95,8 @@ export default function AdCopyPage() {
                         onSubmit={handleSubmit}
                         loading={loading}
                         availableProviders={providers}
-                        fixedProvider="openai"    // 제공자 고정
-                        fixedModel="gpt-5-mini" // 현재 작동 가능한 모델로 고정하여 테스트
+                        fixedProvider="openai"
+                        fixedModel="gpt-5-mini"
                     />
                 </div>
 
@@ -96,8 +105,8 @@ export default function AdCopyPage() {
 
                     {error && (
                         <div className="error-message">
-                            <h3>오류 발생</h3>
-                            <p>{error}</p>
+                            <h3>⚠️ 오류 발생</h3>
+                            <p style={{ whiteSpace: 'pre-line' }}>{error}</p>
                         </div>
                     )}
 
