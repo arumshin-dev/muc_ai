@@ -19,26 +19,44 @@ logger = logging.getLogger(__name__)
 
 class ImageGenerateRequest(BaseModel):
     prompt: str
-    model: Literal["gpt-image-1-mini"] = "gpt-image-1-mini"
-    size: Literal["256x256", "512x512", "1024x1024"] = "256x256"
-    quality: Literal["low", "medium", "high", "auto"] = "low"
+    provider: str = "openai"
+    model: str = "gpt-image-1-mini"
+    size: str = "1024x1024"
+    quality: str = "low"
+
+
+@router.get("/providers")
+async def get_image_providers():
+    """사용 가능한 이미지 생성 제공자 목록"""
+    from config import settings
+    providers = []
+    
+    if settings.OPENAI_API_KEY or settings.OPENAI_GPT4_API_KEY:
+        providers.append({
+            "name": "openai",
+            "models": ["gpt-image-1-mini", "dall-e-3", "dall-e-2"],
+            "default_model": "gpt-image-1-mini",
+            "free": False,
+            "sizes": ["1024x1024", "1024x1536", "1536x1024"],
+            "qualities": ["low", "medium", "high", "standard", "hd", "auto"]
+        })
+    
+    # Stability AI 등 추가 가능
+    
+    return {"providers": providers}
 
 
 @router.post("/generate")
 async def generate_image(request: ImageGenerateRequest):
     """
-    텍스트로 이미지 생성 (Binary PNG 반환)(Base64 파일 반환)
-    
-    - **prompt**: 이미지 생성 프롬프트
-    - **model**: 사용할 모델 (기본: gpt-image-1-mini)
-    - **size**: 이미지 크기 (1024x1024, 512x512 등)
-    - **quality**: 품질 ("low"	가장 빠르고 저렴,
-                        "medium"	기본 권장,
-                        "high"	품질 최상 (느리고 비쌈),
-                        "auto"	모델이 알아서 선택)
+    텍스트로 이미지 생성 (Binary PNG 반환)
     """
-    # Image Generator 생성
-    generator = OpenAIImageGenerator(model=request.model)
+    # provider에 따라 Generator 선택 (현재는 OpenAI만 구현됨)
+    if request.provider == "openai":
+        generator = OpenAIImageGenerator(model=request.model)
+    else:
+        # 기본값 또는 에러
+        generator = OpenAIImageGenerator(model=request.model)
 
     try:
         # 1️⃣ 이미지 생성

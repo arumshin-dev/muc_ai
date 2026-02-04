@@ -33,12 +33,19 @@ class OpenAIImageGenerator(BaseAI):
         """
         print(f"🎨 [OpenAI Image] Generating: {prompt[:50]}... (size: {size}, quality: {quality})")
         
+        # DALL-E 3는 quality로 'standard'와 'hd'만 지원함
+        final_quality = quality
+        if "dall-e-3" in self.model:
+            if quality in ["low", "medium", "auto"]:
+                final_quality = "standard"
+            elif quality == "high":
+                final_quality = "hd"
+        
         response = await self.client.images.generate(
             model=self.model,
             prompt=prompt,
             size=size,
-            quality=quality,
-            response_format="b64_json",  # Base64로 받기
+            quality=final_quality,
             n=1
         )
 
