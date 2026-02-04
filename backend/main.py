@@ -9,7 +9,7 @@ from config import settings
 from database import engine, Base
 
 # 모델 import (테이블 생성을 위해 필요)
-from models import AdCopy
+from models import AdCopy, ImageGeneration#, VisionAnalysis, ImageEdit
 
 
 @asynccontextmanager
@@ -46,8 +46,7 @@ app.add_middleware(
 
 
 # 라우터 import
-from routers import ad_copy, text, image_gen
-# from routers import vision, image_gen, image_edit  # 나중에 추가
+from routers import ad_copy, text, image_gen #, vision, image_edit
 
 
 # 라우터 등록
