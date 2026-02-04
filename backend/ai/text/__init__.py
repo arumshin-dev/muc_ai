@@ -5,5 +5,7 @@ from ai.text.openai_gpt4 import OpenAIGPT4
 from ai.text.openai_gpt5 import OpenAIGPT5
 from ai.text.gemini_text import GeminiText
 from ai.text.hf_text import HuggingFaceText
+from ai.text.groq_text import GroqText
 
-__all__ = ['OpenAIGPT4', 'OpenAIGPT5', 'GeminiText', 'HuggingFaceText']
+
+__all__ = ['OpenAIGPT4', 'OpenAIGPT5', 'GeminiText', 'HuggingFaceText', 'GroqText']

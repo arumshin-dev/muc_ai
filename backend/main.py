@@ -143,6 +143,26 @@ async def get_available_providers():
             "free": True,
             "features": ["text", "vision"]
         })
+
+    if settings.GROQ_API_KEY:
+        providers.append({
+            "name": "groq",
+            "models": {
+                "llama": [
+                    "llama3-8b-8192",
+                    "llama3-70b-8192"
+                ],
+                "mixtral": [
+                    "mixtral-8x7b-32768"
+                ],
+                "gemma": [
+                    "gemma-7b-it"
+                ]
+            },
+            "default_model": "llama3-8b-8192",
+            "free": True,
+            "features": ["text"]
+        })
     
     return {
         "providers": providers,

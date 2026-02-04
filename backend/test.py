@@ -73,6 +73,37 @@ async def test_huggingface():
     except Exception as e:
         print(f"❌ Error: {e}")
 
+'''# 시도해볼 수 있는 모델들
+'llama-3.1-8b-instant'     # ✅ 빠르고 가벼움
+'llama-3.3-70b-versatile'  # 중간 크기
+'llama-4-scout'            # 최신 Llama 4
+'mixtral-8x7b-32768'       # Mixtral MoE
+'gemma2-9b-it'             # Google Gemma
+# llama-3.3-70b-versatile로 시도 (3.3 버전!)
+
+python -c "from ai.factory import TextAIFactory; import asyncio; ai = TextAIFactory.create('groq', 'llama-3.3-70b-versatile'); print(asyncio.run(ai.generate(prompt='Python Factory Pattern을 한줄로 설명해줘')))"
+'''
+async def test_groq():
+    """Groq 테스트"""
+    print("\n" + "=" * 60)
+    print("🧪 Testing Groq")
+    print("=" * 60)
+    try:
+        ai = TextAIFactory.create('groq', 'llama-3.1-8b-instant')
+        result = await ai.generate_text(
+            prompt="Python Factory Pattern을 한 문장으로 설명해줘",
+            system_prompt="당신은 전문 개발자입니다."
+        )
+        print(f"✅ Result: {result}")
+    except Exception as e:
+        print(f"❌ Error: {e}")
+
+
+# async def test_factory():
+#     # Groq 사용
+#     ai = TextAIFactory.create('groq', 'llama-3.3-70b-versatile')
+#     result = ai.generate("파이썬으로 Hello World 작성해줘")
+#     print(result)
 
 async def test_all():
     """모든 AI 제공자 테스트"""
@@ -83,6 +114,7 @@ async def test_all():
     await test_openai_gpt5()
     await test_gemini()
     await test_huggingface()
+    await test_groq()
     
     print("\n" + "=" * 60)
     print("✅ All tests completed!")

@@ -40,6 +40,11 @@ class BaseAI(ABC):
                 raise ValueError("GEMINI_API_KEY is not set")
             return settings.GEMINI_API_KEY
         
+        elif self.provider == "groq":
+            if not settings.GROQ_API_KEY:
+                raise ValueError("GROQ_API_KEY is not set")
+            return settings.GROQ_API_KEY
+        
         elif self.provider == "huggingface":
             if not settings.HUGGINGFACE_API_KEY:
                 raise ValueError("HUGGINGFACE_API_KEY is not set")

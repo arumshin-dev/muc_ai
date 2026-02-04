@@ -28,6 +28,10 @@ class TextAIFactory:
             # HuggingFace
             - TextAIFactory.create('huggingface', 'meta-llama/Llama-3.2-3B-Instruct')
             - TextAIFactory.create('huggingface', 'meta-llama/Llama-3.1-8B-Instruct')
+            
+            # Groq
+            - TextAIFactory.create('groq', 'llama-3.3-70b-versatile')
+            - TextAIFactory.create('groq', 'deepseek-r1-distill-llama-70b')
         """
         cache_key = f"{provider}:{model}"
         
@@ -53,6 +57,10 @@ class TextAIFactory:
         elif provider == "huggingface":
             from ai.text.hf_text import HuggingFaceText
             ai = HuggingFaceText(model=model)
+        
+        elif provider == "groq":
+            from ai.text.groq_text import GroqText
+            ai = GroqText(model=model)
         
         else:
             raise ValueError(f"Unsupported provider: {provider}")
