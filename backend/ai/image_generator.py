@@ -2,18 +2,18 @@
 Image Generation AI - 텍스트로 이미지 생성
 """
 from openai import AsyncOpenAI
-from ai.base import ImageGeneratorAI
+from ai.base import BaseAI
 import httpx
 import base64
 from typing import Optional
 
 
-class OpenAIImageGenerator(ImageGeneratorAI):
+class OpenAIImageGenerator(BaseAI):
     """OpenAI Image Generation API (gpt-image-1-mini)"""
     
     def __init__(self, model: str = "gpt-image-1-mini", api_key: Optional[str] = None):
-        super().__init__("openai", model, api_key)
-        self.client = AsyncOpenAI(api_key=self.api_key)
+        super().__init__("openai", model)
+        self.client = AsyncOpenAI(api_key=self.get_api_key())
         print(f"✅ [OpenAI Image] Initialized: {model}")
     
     async def generate_image(
@@ -43,7 +43,6 @@ class OpenAIImageGenerator(ImageGeneratorAI):
         )
 
         data = response.data[0]
-        print(f"🔍 [DEBUG] Data: {data}")
         
         if hasattr(data, "b64_json") and data.b64_json:
             print(f"✅ [OpenAI Image] Generated via base64")
@@ -67,13 +66,13 @@ class OpenAIImageGenerator(ImageGeneratorAI):
         )
 
 
-class GeminiImageGenerator(ImageGeneratorAI):
+class GeminiImageGenerator(BaseAI):
     """Google Gemini Image Generation (Imagen 3)"""
     
-    def __init__(self, model: str = "imagen-3.0-generate-001", api_key: Optional[str] = None):
-        super().__init__("gemini", model, api_key)
+    def __init__(self, model: str = "imagen-3.0-generate-001"):
+        super().__init__("gemini", model)
         import google.generativeai as genai
-        genai.configure(api_key=self.api_key)
+        genai.configure(api_key=self.get_api_key())
         self.client = genai
         print(f"✅ [Gemini Image] Initialized: {model}")
     
@@ -97,11 +96,11 @@ class GeminiImageGenerator(ImageGeneratorAI):
         )
 
 
-class StabilityImageGenerator(ImageGeneratorAI):
+class StabilityImageGenerator(BaseAI):
     """Stability AI (SDXL, SD3)"""
     
-    def __init__(self, model: str = "stable-diffusion-xl-1024-v1-0", api_key: Optional[str] = None):
-        super().__init__("stability", model, api_key)
+    def __init__(self, model: str = "stable-diffusion-xl-1024-v1-0"):
+        super().__init__("stability", model)
         self.base_url = "https://api.stability.ai/v1/generation"
         print(f"✅ [Stability AI] Initialized: {model}")
     
@@ -120,7 +119,7 @@ class StabilityImageGenerator(ImageGeneratorAI):
             response = await client.post(
                 f"{self.base_url}/{self.model}/text-to-image",
                 headers={
-                    "Authorization": f"Bearer {self.api_key}",
+                    "Authorization": f"Bearer {self.get_api_key()}",
                     "Content-Type": "application/json"
                 },
                 json={
