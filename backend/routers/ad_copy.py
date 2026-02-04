@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from schemas.ad_copy import AdCopyRequest, AdCopyResponse, AdCopyListResponse
 from services.ad_copy_service import AdCopyService
+from config import settings
 
 router = APIRouter(
     prefix="/api/ad-copy",
@@ -20,6 +21,58 @@ router = APIRouter(
 async def options_generate_ad_copy():
     """CORS 사전 요청(preflight)을 위한 OPTIONS 핸들러"""
     return Response(status_code=200)
+
+
+@router.get("/providers")
+async def get_ad_copy_providers():
+    """광고 문구 생성용 AI 프로바이더 목록"""
+    providers = []
+    
+    # OpenAI
+    if settings.OPENAI_API_KEY or settings.OPENAI_GPT4_API_KEY:
+        all_models = []
+        default_model = "gpt-5-mini"
+        
+        if settings.OPENAI_API_KEY:
+            all_models.extend(["gpt-5", "gpt-5-mini", "gpt-5-nano"])
+        
+        if settings.OPENAI_GPT4_API_KEY:
+            all_models.extend(["gpt-4o", "gpt-4o-mini"])
+            if not settings.OPENAI_API_KEY:
+                default_model = "gpt-4o"
+        
+        providers.append({
+            "name": "openai",
+            "models": all_models,
+            "default_model": default_model,
+            "free": False
+        })
+    
+    if settings.GEMINI_API_KEY:
+        providers.append({
+            "name": "gemini",
+            "models": ["gemini-2.5-flash", "gemini-2.5-pro"],
+            "default_model": "gemini-2.5-flash",
+            "free": True
+        })
+    
+    if settings.HUGGINGFACE_API_KEY:
+        providers.append({
+            "name": "huggingface",
+            "models": ["meta-llama/Llama-3.2-3B-Instruct"],
+            "default_model": "meta-llama/Llama-3.2-3B-Instruct",
+            "free": True
+        })
+    
+    if settings.GROQ_API_KEY:
+        providers.append({
+            "name": "groq",
+            "models": ["llama-3.1-8b-instant", "llama-3.3-70b-versatile"],
+            "default_model": "llama-3.1-8b-instant",
+            "free": True
+        })
+    
+    return {"providers": providers}
 
 
 @router.post("/generate", response_model=AdCopyResponse, status_code=201)
@@ -83,3 +136,4 @@ def get_ad_copy(
         raise HTTPException(status_code=404, detail="Ad copy not found")
     
     return result
+

@@ -51,8 +51,8 @@ from routers import ad_copy, text
 
 
 # 라우터 등록
-app.include_router(ad_copy.router)  # 광고 문구 생성 (기존)
 app.include_router(text.router)     # 텍스트 생성 (Factory 사용)
+app.include_router(ad_copy.router)  # 광고 문구 생성 (기존)
 # app.include_router(vision.router)
 # app.include_router(image_gen.router)
 # app.include_router(image_edit.router)

@@ -1,10 +1,19 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { apiClient, ApiError } from '@/lib/api'  // 👈 추가
+import { apiClient, ApiError } from '@/lib/api'
+import { API_ENDPOINTS } from '@/lib/config'  // ← 추가
 import AdCopyForm, { FormData, AIProvider } from '../components/AdCopyForm'
 import AdCopyResult from '../components/AdCopyResult'
 import LoadingSpinner from '../components/LoadingSpinner'
+
+// AIProvider 인터페이스 업데이트
+export interface AIProvider {
+    name: string
+    models: string[]
+    default_model: string
+    free?: boolean
+}
 
 interface AdCopyResponse {
     id: number
@@ -22,10 +31,14 @@ export default function AdCopyPage() {
     useEffect(() => {
         const fetchProviders = async () => {
             try {
-                const data = await apiClient.get<any>('/api/providers')
+                const data = await apiClient.get<any>(API_ENDPOINTS.adCopy.providers)  // ← 변경
                     setProviders(data.providers)
             } catch (err) {
-                console.error('Failed to fetch providers:', err)
+                if (err instanceof ApiError) {
+                    console.error('Failed to fetch providers:', err.statusCode, err.detail)
+                } else {
+                    console.error('Failed to fetch providers:', err)
+                }
             }
         }
         fetchProviders()
@@ -38,8 +51,11 @@ export default function AdCopyPage() {
 
         try {
             const data = await apiClient.post<AdCopyResponse>(
-                '/api/ad-copy/generate',
-                formData
+                API_ENDPOINTS.adCopy.generate,  // ← 변경
+                {
+                    ...formData,
+                    strict_mode: true
+                }
             )
             setResult(data)
             
@@ -99,7 +115,7 @@ export default function AdCopyPage() {
                 <h1>광고 문구 생성</h1>
                 <p>AI를 활용하여 매력적인 광고 문구를 자동으로 생성하세요</p>
                 <div className="mt-4">
-                    <a href="/text-ai" className="text-blue-600 hover:underline">
+                    <a href="/test_text" className="text-blue-600 hover:underline">
                         모델별 테스트 페이지로 이동하기 →
                     </a>
                 </div>

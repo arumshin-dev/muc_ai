@@ -6,7 +6,7 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 from models.ad_copy import AdCopy
 from schemas.ad_copy import AdCopyRequest, AdCopyResponse
-from services.ai_factory import ai_factory
+from ai.factory import TextAIFactory  # ← 새 Factory 사용!
 
 
 class AdCopyService:
@@ -17,42 +17,54 @@ class AdCopyService:
         request: AdCopyRequest,
         db: Session
     ) -> AdCopyResponse:
-        """
-        광고 문구 생성 및 저장
+        """광고 문구 생성 및 저장"""
         
-        Args:
-            request: 광고 문구 생성 요청
-            db: 데이터베이스 세션
-            
-        Returns:
-            생성된 광고 문구 응답
-        """
-        # AI 제공자 선택 (사용자 선택 또는 자동 폴백)
-        provider, provider_name, model_name = ai_factory.get_available_provider(
-            preferred_provider=request.ai_provider,
-            custom_model=request.ai_model,
-            strict_mode=request.strict_mode
+        # 새로운 Factory 사용
+        ai = TextAIFactory.create(
+            provider=request.ai_provider or "openai",
+            model=request.ai_model or "gpt-5-mini"
         )
         
-        # 광고 문구 생성
-        generated_copies = await provider.generate_ad_copies(
-            product_name=request.product_name,
-            category=request.category,
-            target_audience=request.target_audience,
-            key_features=request.key_features,
-            tone=request.tone,
-            num_copies=5
+        # 광고 문구 생성 프롬프트 구성
+        prompt = f"""
+다음 제품의 광고 문구 5개를 생성해주세요:
+
+- 제품명: {request.product_name}
+- 카테고리: {request.category}
+- 타겟 고객: {request.target_audience}
+- 핵심 특징: {request.key_features}
+- 톤: {request.tone}
+
+각 광고 문구는 한 줄로, 명확하고 매력적이게 작성해주세요.
+번호를 매겨서 5개를 작성해주세요.
+"""
+        
+        system_prompt = "당신은 전문 카피라이터입니다. 매력적이고 효과적인 광고 문구를 작성합니다."
+        
+        # AI 생성
+        result = await ai.generate_text(
+            prompt=prompt,
+            system_prompt=system_prompt,
+            max_tokens=500,
+            temperature=0.8
         )
         
-        # 데이터베이스에 저장
+        # 결과 파싱 (줄 단위로 분리)
+        generated_copies = [
+            line.strip() 
+            for line in result.split('\n') 
+            if line.strip() and not line.strip().startswith('#')
+        ][:5]  # 최대 5개
+        
+        # 데이터베이스 저장
         ad_copy = AdCopy(
             product_name=request.product_name,
             category=request.category,
             target_audience=request.target_audience,
             key_features=request.key_features,
             tone=request.tone,
-            ai_provider=provider_name,
-            ai_model=model_name,
+            ai_provider=request.ai_provider or "openai",
+            ai_model=request.ai_model or "gpt-5-mini",
             generated_copies=generated_copies
         )
         

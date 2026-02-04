@@ -61,3 +61,15 @@ class AdCopyListResponse(BaseModel):
     """광고 문구 목록 응답"""
     total: int
     items: List[AdCopyResponse]
+
+
+# New schemas for ad-copy providers
+class AdCopyProviderItem(BaseModel):
+    name: str
+    models: List[str]
+    default_model: str
+    free: bool = False # Default to False, since not all providers are free
+
+
+class AdCopyProvidersResponse(BaseModel):
+    providers: List[AdCopyProviderItem]

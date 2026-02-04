@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { apiClient } from '@/lib/api';
+import { API_ENDPOINTS } from '@/lib/config';  // ← 추가
 
 interface Model {
   id: string;
@@ -28,7 +29,9 @@ export default function TestTextPage() {
     // 프로바이더 목록 로드
     const fetchProviders = async () => {
       try {
-        const data = await apiClient.get<{ providers: Provider[] }>('/api/text/providers');
+        const data = await apiClient.get<{ providers: Provider[] }>(
+          API_ENDPOINTS.text.providers  // ← 변경
+        );
         setProviders(data.providers);
         if (data.providers.length > 0) {
           setSelectedProvider(data.providers[0].id);
@@ -47,11 +50,14 @@ export default function TestTextPage() {
     const startTime = Date.now();
 
     try {
-      const data = await apiClient.post<{ text: string }>('/api/text/generate', {
+      const data = await apiClient.post<{ text: string }>(
+        API_ENDPOINTS.text.generate,  // ← 변경
+        {
           provider: provider || selectedProvider,
           model: model || selectedModel,
           prompt: prompt
-      });
+        }
+      );
 
       const endTime = Date.now();
       setResult(data.text);

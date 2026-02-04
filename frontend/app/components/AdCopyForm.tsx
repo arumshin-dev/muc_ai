@@ -1,3 +1,5 @@
+// frontend/app/components/AdCopyForm.tsx
+
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -120,7 +122,7 @@ export default function AdCopyForm({
                     <select
                         id="ai_model"
                         name="ai_model"
-                        value={formData.ai_model}
+                        value={formData.ai_model} 
                         onChange={handleChange}
                         disabled={loading || !selectedProvider || !!fixedModel}
                     >
@@ -133,6 +135,7 @@ export default function AdCopyForm({
                 </div>
             </div>
 
+            {/* 나머지 폼 필드는 동일 */}
             <div className="form-group">
                 <label htmlFor="product_name">제품명 *</label>
                 <input
