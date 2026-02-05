@@ -54,7 +54,7 @@ services:
         condition: service_healthy
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
-  # 3. Frontend (Next.js)
+  # 3. Frontend (Next.js) - 기존 앱
   frontend:
     build: ./frontend
     container_name: muc_ai_frontend
@@ -73,7 +73,17 @@ services:
       - backend
     command: npm run dev
 
-  # 4. Jupyter Notebook (개발/실험용)
+  # 4. Static Frontend (HTML/CSS/JS) - 새로운 앱
+  static-frontend:
+    image: nginx:alpine
+    container_name: muc_ai_static_frontend
+    restart: always
+    ports:
+      - "3001:80"
+    volumes:
+      - ./static_frontend:/usr/share/nginx/html
+
+  # 5. Jupyter Notebook (개발/실험용) (jupyter 서비스는 기존과 동일)
   jupyter:
     image: jupyter/base-notebook
     container_name: muc_ai_jupyter
