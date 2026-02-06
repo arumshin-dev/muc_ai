@@ -22,6 +22,16 @@ export const API_ENDPOINTS = {
       providers: '/api/vision/providers',
       analyze: '/api/vision/analyze',
     },
+    blog: {
+      generateGpt4: '/api/v1/generate-gpt4-blog',
+      generateGpt5: '/api/v1/generate-gpt5-blog',
+    },
+    reviewReply: {
+      generate: '/api/v1/generate-review-reply',
+    },
+    productReview: {
+      generate: '/api/v1/generate-product-review',
+    },
   } as const;
   
   // 타입 추출 (선택사항)

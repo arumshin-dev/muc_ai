@@ -1,9 +1,9 @@
-// frontend/app/test_text/page.tsx
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { apiClient } from '@/lib/api';
-import { API_ENDPOINTS } from '@/lib/config';  // ← 추가
+import { API_ENDPOINTS } from '@/lib/config';
 
 interface Model {
   id: string;
@@ -26,19 +26,34 @@ export default function TestTextPage() {
   const [responseTime, setResponseTime] = useState(0);
 
   useEffect(() => {
-    // 프로바이더 목록 로드
     const fetchProviders = async () => {
       try {
-        const data = await apiClient.get<{ providers: Provider[] }>(
-          API_ENDPOINTS.text.providers  // ← 변경
-        );
-        setProviders(data.providers);
-        if (data.providers.length > 0) {
-          setSelectedProvider(data.providers[0].id);
-          setSelectedModel(data.providers[0].models[0].id);
+        // 1. 올바른 백엔드 API 주소('/api/providers')로 요청합니다.
+        const response = await apiClient.get<any>('/api/providers');
+        const backendProviders = response.providers;
+
+        // 2. 백엔드 응답을 프론트엔드에 맞는 데이터 구조로 변환합니다.
+        const transformedProviders: Provider[] = backendProviders.map((p: any) => ({
+          id: p.name,
+          name: p.name,
+          models: Object.values(p.models)
+            .flat()
+            .map((modelName: any) => ({
+              id: modelName,
+              name: modelName,
+            })),
+        }));
+
+        setProviders(transformedProviders);
+
+        if (transformedProviders.length > 0 && transformedProviders[0].models.length > 0) {
+          setSelectedProvider(transformedProviders[0].id);
+          setSelectedModel(transformedProviders[0].models[0].id);
         }
       } catch (err) {
         console.error('Failed to load providers:', err);
+        // 사용자에게 에러 메시지를 보여줄 수 있습니다.
+        setResult(`❌ 프로바이더 목록을 불러오는 데 실패했습니다: ${err instanceof Error ? err.message : 'Unknown error'}`);
       }
     };
     fetchProviders();
@@ -51,7 +66,7 @@ export default function TestTextPage() {
 
     try {
       const data = await apiClient.post<{ text: string }>(
-        API_ENDPOINTS.text.generate,  // ← 변경
+        API_ENDPOINTS.text.generate,  // 이 부분은 그대로 사용합니다.
         {
           provider: provider || selectedProvider,
           model: model || selectedModel,
@@ -100,6 +115,7 @@ export default function TestTextPage() {
                 }
               }}
               className="w-full border rounded p-2"
+              disabled={providers.length === 0}
             >
               {providers.map((p, idx) => (
                 <option key={`${p.id}-${idx}`} value={p.id}>
@@ -115,6 +131,7 @@ export default function TestTextPage() {
               value={selectedModel}
               onChange={(e) => setSelectedModel(e.target.value)}
               className="w-full border rounded p-2"
+              disabled={!currentProviderData || currentProviderData.models.length === 0}
             >
               {currentProviderData?.models.map((m) => (
                 <option key={m.id} value={m.id}>
@@ -127,7 +144,7 @@ export default function TestTextPage() {
 
         <button
           onClick={() => handleTest()}
-          disabled={loading}
+          disabled={loading || providers.length === 0}
           className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
         >
           {loading ? '⏳ 생성 중...' : '🚀 테스트 실행'}

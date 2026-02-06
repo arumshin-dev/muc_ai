@@ -46,16 +46,17 @@ app.add_middleware(
 
 
 # 라우터 import
-from routers import ad_copy, text, image_gen, blog #, vision, image_edit
+from routers import ad_copy, text, image_gen, blog_gpt4, blog_gpt5, review_reply, product_review
 
 
 # 라우터 등록
-app.include_router(text.router)     # 텍스트 생성 (Factory 사용)
-app.include_router(ad_copy.router)  # 광고 문구 생성 (기존)
+app.include_router(text.router)     
+app.include_router(ad_copy.router)  
 app.include_router(image_gen.router)
-app.include_router(blog.router) # ⭐️ 신규 블로그 생성 라우터 추가
-# app.include_router(vision.router)
-# app.include_router(image_edit.router)
+app.include_router(blog_gpt4.router) 
+app.include_router(blog_gpt5.router)
+app.include_router(review_reply.router) # ⭐️ 리뷰 답글 생성 라우터 등록
+app.include_router(product_review.router) # ⭐️ 제품 리뷰 생성 라우터 등록
 
 
 @app.get("/")
@@ -67,11 +68,14 @@ async def root():
         "docs": "/docs",
         "features": [
             "광고 문구 생성 (Text → Text)",
-            "블로그 글 생성 (Text → Text)", # 기능 추가
+            "블로그 글 생성 (GPT-4)", 
+            "블로그 글 생성 (GPT-5)", # 기능 추가
             "텍스트 생성 (Factory Pattern)",
             "이미지 분석 (Image → Text)",
             "이미지 생성 (Text → Image)",
-            "이미지 편집 (Image → Image)"
+            "이미지 편집 (Image → Image)",
+            "리뷰 답글 생성 (Review → Text)", # 기능 추가
+            "제품 리뷰 생성 (Product Review → Text)" # 기능 추가
         ]
     }
 
@@ -91,7 +95,6 @@ async def get_available_providers():
     """사용 가능한 AI 제공자 목록"""
     providers = []
     
-    # OpenAI: GPT-4 또는 GPT-5 키가 있으면 사용 가능
     if settings.OPENAI_API_KEY or settings.OPENAI_GPT4_API_KEY:
         available_models = {
             "gpt5": [],
@@ -99,11 +102,9 @@ async def get_available_providers():
             "image": ["gpt-image-1-mini"]
         }
         
-        # GPT-5 키가 있으면 GPT-5 모델 추가
         if settings.OPENAI_API_KEY:
             available_models["gpt5"] = ["gpt-5", "gpt-5-mini", "gpt-5-nano"]
         
-        # GPT-4 키가 있으면 GPT-4 모델 추가
         if settings.OPENAI_GPT4_API_KEY:
             available_models["gpt4"] = ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo"]
         
@@ -113,7 +114,7 @@ async def get_available_providers():
                 "gpt4": ["gpt-4o", "gpt-4o-mini"],
                 "gpt5": ["gpt-5", "gpt-5-mini", "gpt-5-nano"],
                 "image": ["gpt-image-1-mini"]
-            },# available_models,
+            },
             "default_model": settings.OPENAI_DEFAULT_MODEL,
             "features": ["text", "vision", "image-generation", "image-editing"]
         })

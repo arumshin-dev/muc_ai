@@ -31,7 +31,7 @@ export default function BlogGPT4Page() {
         setCopySuccess(false);
 
         try {
-            const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/generate-blog`;
+            const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/generate-gpt4-blog`;
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -240,7 +240,7 @@ export default function BlogGPT4Page() {
             </main>
 
             <footer className={styles.footer}>
-                <p>&copy; 2024 AI Services Platform - GPT-4 블로그 AI</p>
+                <p>&copy; GPT-4 블로그 AI</p>
             </footer>
         </div>
     );

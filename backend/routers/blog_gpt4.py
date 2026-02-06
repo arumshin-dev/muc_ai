@@ -13,7 +13,7 @@ class BlogRequest(BaseModel):
     length: str
     model: str
 
-@router.post("/generate-blog", summary="SEO 블로그 글 생성")
+@router.post("/generate-gpt4-blog", summary="SEO 블로그 글 생성")
 async def generate_blog_post(request: BlogRequest):
     """
     사용자 요청에 따라 SEO에 최적화된 블로그 글을 생성합니다.

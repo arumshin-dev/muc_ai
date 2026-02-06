@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { apiClient } from '@/lib/api'
-import { AIProvider } from '../components/AdCopyForm'
+import { API_ENDPOINTS } from '@/lib/config'  // ← 추가
 import LoadingSpinner from '../components/LoadingSpinner'
 
 export default function TextAILandingPage() {
