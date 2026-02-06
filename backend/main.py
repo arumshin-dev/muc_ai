@@ -46,13 +46,14 @@ app.add_middleware(
 
 
 # 라우터 import
-from routers import ad_copy, text, image_gen #, vision, image_edit
+from routers import ad_copy, text, image_gen, blog #, vision, image_edit
 
 
 # 라우터 등록
 app.include_router(text.router)     # 텍스트 생성 (Factory 사용)
 app.include_router(ad_copy.router)  # 광고 문구 생성 (기존)
 app.include_router(image_gen.router)
+app.include_router(blog.router) # ⭐️ 신규 블로그 생성 라우터 추가
 # app.include_router(vision.router)
 # app.include_router(image_edit.router)
 
@@ -66,6 +67,7 @@ async def root():
         "docs": "/docs",
         "features": [
             "광고 문구 생성 (Text → Text)",
+            "블로그 글 생성 (Text → Text)", # 기능 추가
             "텍스트 생성 (Factory Pattern)",
             "이미지 분석 (Image → Text)",
             "이미지 생성 (Text → Image)",

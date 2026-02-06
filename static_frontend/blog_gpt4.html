@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPT-4 블로그 AI - SEO 최적화 글쓰기</title>
+    <!-- <link rel="stylesheet" href="/blog_gpt4.css"> -->
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-brand">
+                <h1>🤖 AI Services Platform</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/">🏠 대시보드</a>
+                <!-- <a href="/game">🎮 게임</a> -->
+                <!-- <a href="/blog">📝 블로그</a> -->
+                <a href="/blog" class="nav-link">블로그 AI(gpt5)</a>
+                <a href="/blog/gpt4" class="nav-link active">블로그 AI(gpt4)</a>
+                <!-- <a href="/shortvideo">🎬 숏폼</a>
+                <a href="/image">🎨 이미지</a>
+                <a href="/voice">🎤 음성</a>
+                <a href="/code">💻 코드</a> -->
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="page-header">
+            <h1>🤖 GPT-4 블로그 AI</h1>
+            <p>SEO 최적화된 고품질 블로그 글을 생성합니다</p>
+        </div>
+
+        <div class="blog-container">
+            <div class="form-section">
+                <h2>📝 블로그 정보 입력</h2>
+                <form id="blog-form">
+                    <div class="form-group">
+                        <label for="keyword">키워드 *</label>
+                        <input type="text" id="keyword" name="keyword" placeholder="예: 인공지능, 마케팅, 프로그래밍" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="style">글 스타일</label>
+                        <select id="style" name="style">
+                            <option value="일반">일반 (친근하고 이해하기 쉬운)</option>
+                            <option value="전문">전문 (신뢰성 있는)</option>
+                            <option value="캐주얼">캐주얼 (가볍고 재미있는)</option>
+                            <option value="기술">기술 (상세한)</option>
+                            <option value="마케팅">마케팅 (설득력 있는)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="length">글 길이</label>
+                        <select id="length" name="length">
+                            <option value="짧음">짧음 (300자)</option>
+                            <option value="중간" selected>중간 (600자)</option>
+                            <option value="김">김 (1000자)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+                        <span class="btn-text">✨ GPT-4로 글쓰기</span>
+                        <div class="loading-spinner" style="display: none;"></div>
+                    </button>
+                </form>
+            </div>
+
+            <div class="result-section">
+                <h2>📄 생성된 블로그 글</h2>
+                <div id="result-container" style="display: none;">
+                    <div class="result-header">
+                        <h3 id="result-title"></h3>
+                        <div class="result-meta">
+                            <span class="meta-info">📊 단어 수: <span id="word-count"></span></span>
+                            <span class="meta-info">🤖 모델: <span id="model-used"></span></span>
+                            <span class="meta-info">🎨 스타일: <span id="result-style"></span></span>
+                        </div>
+                    </div>
+
+                    <div class="meta-section">
+                        <h4>🔍 SEO 메타 정보</h4>
+                        <div class="meta-description">
+                            <strong>메타 설명:</strong>
+                            <p id="meta-description"></p>
+                        </div>
+                    </div>
+
+                    <div class="content-section">
+                        <h4>📝 본문 내용</h4>
+                        <div id="result-content" class="blog-content"></div>
+                    </div>
+
+                    <div class="hashtags-section">
+                        <h4>🏷️ 해시태그</h4>
+                        <div id="hashtags" class="hashtags"></div>
+                    </div>
+
+                    <div class="actions">
+                        <button id="copy-btn" class="btn-secondary">📋 복사하기</button>
+                        <button id="download-btn" class="btn-secondary">💾 다운로드</button>
+                        <button id="reset-btn" class="btn-secondary">🔄 새 글쓰기</button>
+                    </div>
+                </div>
+
+                <div id="empty-state" class="empty-state">
+                    <div class="empty-icon">📝</div>
+                    <h3>아직 생성된 글이 없습니다</h3>
+                    <p>위 폼에 정보를 입력하고 'GPT-4로 글쓰기' 버튼을 클릭하세요</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 AI Services Platform - GPT-4 블로그 AI</p>
+    </footer>
+
+    <script src="/static/blog_gpt4.js"></script>
+</body>
+</html>

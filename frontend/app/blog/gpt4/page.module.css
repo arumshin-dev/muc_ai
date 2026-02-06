@@ -1,0 +1,283 @@
+/* 기본 컨테이너 및 레이아웃 */
+.pageContainer {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+    width: 100%;
+}
+
+.pageHeader {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.pageHeader h1 {
+    font-size: 2.8rem;
+    color: #343a40;
+    margin-bottom: 0.5rem;
+}
+
+.pageHeader p {
+    font-size: 1.2rem;
+    color: #6c757d;
+}
+
+/* 네비게이션 바 */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #ffffff;
+    border-bottom: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.navBrand h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.navBrand a {
+    text-decoration: none;
+    color: #333;
+}
+
+.navLinks {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.navLink {
+    text-decoration: none;
+    color: #495057;
+    font-weight: 500;
+    padding: 0.5rem 0;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.navLink:hover {
+    color: #007bff;
+}
+
+.navLink.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+}
+
+
+/* 블로그 컨테이너 */
+.blogContainer {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 3rem;
+    background: #fff;
+    padding: 2.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.formSection h2, .resultSection h2 {
+    font-size: 1.5rem;
+    color: #212529;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 0.5rem;
+}
+
+/* 폼 스타일 */
+.formGroup {
+    margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #495057;
+}
+
+.formGroup input,
+.formGroup select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* 버튼 스타일 */
+.btnPrimary {
+    width: 100%;
+    padding: 0.9rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btnPrimary:hover {
+    background-color: #0056b3;
+}
+
+.btnPrimary:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* 로딩 스피너 */
+.loadingSpinner {
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 3px solid #fff;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+/* 결과 섹션 */
+.resultSection .emptyState, .resultSection .errorState {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    border: 2px dashed #e0e0e0;
+    border-radius: 8px;
+    height: 100%;
+    color: #6c757d;
+}
+
+.errorState {
+    color: #dc3545;
+    border-color: #f5c6cb;
+    background-color: #f8d7da;
+}
+
+.emptyState .emptyIcon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+#result-container > div:not(:last-child) {
+    margin-bottom: 2rem;
+}
+
+.resultHeader h3 {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.resultMeta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.9rem;
+    color: #555;
+    flex-wrap: wrap;
+}
+
+.metaInfo {
+    background-color: #e9ecef;
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+}
+
+.metaSection h4, .contentSection h4, .hashtagsSection h4 {
+    font-size: 1.2rem;
+    color: #343a40;
+    margin-bottom: 0.8rem;
+    border-left: 4px solid #007bff;
+    padding-left: 0.8rem;
+}
+
+.metaDescription p {
+    margin: 0;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    line-height: 1.6;
+}
+
+.blogContent {
+    line-height: 1.8;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.hashtags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.hashtag {
+    background-color: #17a2b8;
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.9rem;
+}
+
+.actions {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+    border-top: 1px solid #e9ecef;
+    padding-top: 1.5rem;
+}
+
+.btnSecondary {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.9rem;
+    color: #333;
+    background-color: #f1f3f5;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btnSecondary:hover {
+    background-color: #e9ecef;
+}
+
+/* 푸터 */
+.footer {
+    text-align: center;
+    padding: 2rem 0;
+    margin-top: auto;
+    background-color: #e9ecef;
+    color: #6c757d;
+}
